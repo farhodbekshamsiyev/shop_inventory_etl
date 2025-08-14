@@ -1,8 +1,9 @@
 import pandas as pd
-from etl.db import get_connection, init_db
-from etl.logger import get_logger
+from db import get_connection, init_db
+from logger import get_logger
 
 logger = get_logger()
+
 
 def normalize_dates(df, date_columns):
     for col in date_columns:
@@ -10,14 +11,17 @@ def normalize_dates(df, date_columns):
         df[col] = df[col].dt.strftime('%Y-%m-%dT%H:%M:%SZ')
     return df
 
+
 def normalize_product_names(df):
     df['name'] = df['name'].astype(str).str.strip().str.title()
     return df
+
 
 def fill_empty_prices_with_average(df):
     avg_price = df['price'].mean(skipna=True)
     df['price'] = df['price'].fillna(avg_price)
     return df
+
 
 def run_etl(catalog_csv, product_csv):
     try:
