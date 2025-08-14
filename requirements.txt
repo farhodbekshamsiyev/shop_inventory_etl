@@ -92,3 +92,7 @@ watchdog==5.0.3
 watchfiles==1.1.0
 websockets==15.0.1
 yarl==1.20.1
+typing_extensions~=4.14.1
+pytest~=8.4.1
+pluggy~=1.6.0
+iniconfig~=2.1.0

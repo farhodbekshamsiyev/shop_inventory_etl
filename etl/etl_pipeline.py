@@ -1,6 +1,6 @@
 import pandas as pd
-from db import get_connection, init_db
-from logger import get_logger
+from etl.db import get_connection, init_db
+from etl.logger import get_logger
 
 logger = get_logger()
 
