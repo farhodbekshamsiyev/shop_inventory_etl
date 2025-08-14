@@ -50,3 +50,72 @@ if st.button("Show Results"):
 
 # --- Queries Section ---
 st.header("📊 Data Queries")
+
+
+# 1️⃣ Query products by catalog
+st.subheader("1. Query products by catalog")
+try:
+    conn = get_connection()
+    catalogs = pd.read_sql("SELECT DISTINCT name FROM catalogs", conn)
+    catalog_names = catalogs['name'].tolist()
+    selected_catalog = st.selectbox("Select catalog", catalog_names)
+
+    if st.button("Get Products for Catalog"):
+        query = """
+        SELECT p.product_id,
+               p.name AS product_name,
+               p.price,
+               c.name AS catalog_name
+        FROM products p
+        JOIN catalogs c ON p.catalog_id = c.catalog_id
+        WHERE c.name = ?
+        """
+        df = pd.read_sql(query, conn, params=(selected_catalog,))
+        st.dataframe(df)
+except Exception as e:
+    st.error(f"Failed to query products by catalog: {str(e)}")
+finally:
+    conn.close()
+
+# 2️⃣ Get top N products by price
+st.subheader("2. Top N products by price")
+try:
+    conn = get_connection()
+    top_n = st.number_input("Enter N", min_value=1, value=5, step=1)
+    if st.button("Get Top N Products"):
+        query = """
+        SELECT p.product_id,
+               p.name AS product_name,
+               p.price,
+               c.name AS catalog_name
+        FROM products p
+        JOIN catalogs c ON p.catalog_id = c.catalog_id
+        ORDER BY p.price DESC
+        LIMIT ?
+        """
+        df = pd.read_sql(query, conn, params=(top_n,))
+        st.dataframe(df)
+except Exception as e:
+    st.error(f"Failed to get top N products: {str(e)}")
+finally:
+    conn.close()
+
+# 3️⃣ Product counts per catalog
+st.subheader("3. Product counts per catalog")
+try:
+    conn = get_connection()
+    if st.button("Get Product Counts"):
+        query = """
+        SELECT c.name AS catalog_name,
+               COUNT(p.product_id) AS product_count
+        FROM catalogs c
+        LEFT JOIN products p ON c.catalog_id = p.catalog_id
+        GROUP BY c.name
+        ORDER BY product_count DESC
+        """
+        df = pd.read_sql(query, conn)
+        st.dataframe(df)
+except Exception as e:
+    st.error(f"Failed to get product counts: {str(e)}")
+finally:
+    conn.close()
